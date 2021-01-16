@@ -1,12 +1,9 @@
 import sys
 
-# from _Repository import _Repository
 from datetime import datetime
 
 import Repository
-from Repository import _Repository
 from Vaccine import Vaccine
-from _Vaccines import _Vaccines
 
 
 def total(list1):
@@ -22,32 +19,26 @@ def order_by_date(date):
 
 def order(args):
     repo = Repository.repo
-    file1 = open("output.txt", 'a')
+    file1 = open(args[3], 'w')
 
-    with open(args[2], 'r') as config_file:
-        # print(args[2])
-        # with open('order.txt') as config_file:
-        cnfg_list = config_file.read().splitlines()
+    with open(args[2], 'r') as orders_file:
+        cnfg_list = orders_file.read().splitlines()
         cur = repo.get_conn().cursor()
         for line in cnfg_list:
             recive_or_send = line.split(",")
             # recive
             if len(recive_or_send) > 2:
-                # repo.vaccines.supply_product(line_splitted[0], line_splitted[1])
-                cur.execute("""SELECT id FROM Suppliers WHERE name=?""", [recive_or_send[0]])
+                cur.execute("""SELECT id FROM suppliers WHERE name=?""", [recive_or_send[0]])
                 supplier_id = cur.fetchone()[0]
                 vac_id = repo.get_vaccines().get_num_of_vaccines()
-                # vac = (str(vac_id), recive_or_send[2], supplier_id, int(recive_or_send[1]))
                 repo.vaccines.insert(Vaccine(vac_id, recive_or_send[2], supplier_id, recive_or_send[1]))
 
-                cur.execute("""SELECT Logistic FROM Suppliers WHERE id=?""", [supplier_id])
+                cur.execute("""SELECT logistic FROM suppliers WHERE id=?""", [supplier_id])
                 logistic_id = cur.fetchone()[0]
-                cur.execute("""SELECT count_received FROM Logistics WHERE id=?""", [logistic_id])
+                cur.execute("""SELECT count_received FROM logistics WHERE id=?""", [logistic_id])
                 curr_count_received = cur.fetchone()[0]
-                cur.execute("""UPDATE Logistics SET count_received=? WHERE id=?""",
+                cur.execute("""UPDATE logistics SET count_received=? WHERE id=?""",
                             [curr_count_received + int(recive_or_send[1]), logistic_id])
-                # prod_name = cur.fetchone()[0]
-                # repo.activities.insert_to_print(prod_name,line_splitted[1],"None",sup_name,line_splitted[3])
 
             # send
             elif len(recive_or_send) == 2:
@@ -69,9 +60,9 @@ def order(args):
                     repo.get_conn().commit()
                 cur.execute("""SELECT logistic FROM clinics WHERE location=?""", [recive_or_send[0]])
                 logistic_id = cur.fetchone()[0]
-                cur.execute("""SELECT count_sent FROM Logistics WHERE id=?""", [logistic_id])
+                cur.execute("""SELECT count_sent FROM logistics WHERE id=?""", [logistic_id])
                 curr_count_sent = cur.fetchone()[0]
-                cur.execute("""UPDATE Logistics SET count_sent=? WHERE id=?""",
+                cur.execute("""UPDATE logistics SET count_sent=? WHERE id=?""",
                             [curr_count_sent + int(recive_or_send[1]), logistic_id])
                 cur.execute("""SELECT demand FROM clinics WHERE location=?""", [recive_or_send[0]])
                 demand = cur.fetchone()[0]
@@ -87,10 +78,6 @@ def order(args):
             received = cur.fetchall()
 
             file1.write(str(total(inventory))+","+str(total(demands))+","+str(total(received))+","+str(total(sent))+"\n")
-            cursor = repo.get_conn().cursor()
-            cursor.execute("SELECT * FROM vaccines")
-            info = cursor.fetchall()
-            print(info)
 
 
 def swap_seperators(lst):
@@ -108,6 +95,3 @@ def swap_seperators(lst):
     return lst
     # ***
 
-# if __name__ == '__main__':
-#     order(sys.argv)
-#     printdb()

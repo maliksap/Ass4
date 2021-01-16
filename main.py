@@ -49,12 +49,11 @@ def order_by_date(e):
 
 
 def initiate(args):
-    if os.path.isfile('database.db'):
-        os.remove('database.db')
+    # if os.path.isfile('database.db'):
+    #     os.remove('database.db')
     repo = Repository.repo
     repo.create_tables()
     with open(args[1], 'r') as config_file:
-        # with open('config.txt') as config_file:
 
         cnfg_list = config_file.read().splitlines()
         line_info = cnfg_list[0].split(",")
@@ -76,7 +75,6 @@ def initiate(args):
             id = line_splitted[0]
             name = line_splitted[1]
             logistic = line_splitted[2]
-            # repo.employees.insert(employee)
             repo.suppliers.insert(Supplier(id, name, logistic))
 
         for line in cnfg_list[int(num_of_vaccines) + int(num_of_suppliers) + 1:int(num_of_vaccines) + int(
@@ -86,7 +84,6 @@ def initiate(args):
             location = line_splitted[1]
             demand = line_splitted[2]
             logistic = line_splitted[3]
-            # repo.employees.insert(employee)
             repo.clinics.insert(Clinic(id, location, demand, logistic))
 
         for line in cnfg_list[int(num_of_vaccines) + int(num_of_suppliers) + int(num_of_clinics) + 1:]:
@@ -95,19 +92,15 @@ def initiate(args):
             name = line_splitted[1]
             count_sent = line_splitted[2]
             count_received = line_splitted[3]
-            # repo.employees.insert(employee)
             repo.logistics.insert(Logistic(id, name, count_sent, count_received))
 
-    repo._conn.commit()
-    # cur = repo._conn.cursor()
-    # cur.execute("SELECT * FROM vaccines")
-    # info = cur.fetchall()
-    # print(info)
+    repo.get_conn().commit()
 
 
 def main(args):
     initiate(args)
     order(sys.argv)
+    Repository.repo.get_conn().commit()
 
 
 if __name__ == '__main__':

@@ -10,7 +10,7 @@ from _Vaccines import _Vaccines
 
 class _Repository:
     def __init__(self):
-        self._conn = sqlite3.connect('database3.db')
+        self._conn = sqlite3.connect('database.db')
         self.vaccines = _Vaccines(self._conn)
         self.suppliers = _Suppliers(self._conn)
         self.clinics = _Clinics(self._conn)
@@ -34,20 +34,20 @@ class _Repository:
                 id      INTEGER     PRIMARY KEY,
                 date        DATE        NOT NULL,
                 supplier        INTEGER     NOT NULL,
-                quantity        INTEGER     REFERENCES Supplier(id)
+                quantity        INTEGER     REFERENCES supplier(id)
             );
 
             CREATE TABLE suppliers (
                 id      INTEGER     PRIMARY KEY,
                 name        STRING      NOT NULL,
-                logistic        INTEGER     REFERENCES Logistic(id)
+                logistic        INTEGER     REFERENCES logistic(id)
             );
 
             CREATE TABLE clinics (
                 id      INTEGER     PRIMARY KEY,
                 location        STRING      NOT NULL,
                 demand      INTEGER     NOT NULL,
-                logistic        INTEGER     REFERENCES Logistic(id)
+                logistic        INTEGER     REFERENCES logistic(id)
             );
             
             CREATE TABLE logistics (
